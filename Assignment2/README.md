@@ -6,7 +6,7 @@ The model uses two files
 - e_coli_core.json
     - The E.coli core model to be loaded in using COBRApy
 - KEN3170_Assignment_2026_e_coli_core_expression.csv
-    - The estimated maximal activity of biomass production.
+    - The estimated maximal activity of each reaction.
 
 ## What this notebook does
 
@@ -18,6 +18,17 @@ With the use of the online model
 
 It sets the estimated maximal flux rates from the CSV to the model with some extra constraints and carries out a Flux Balance Analysis (FBA) optimization of biomass production under varying glucose exchange rates.
 
+## Helper functions
+
+### `print_exchange_reactions(glc_ex_rate)`
+
+Solves the model at a chosen glucose availability and reports the boundary fluxes.
+
+- Sets the glucose exchange bounds to `(-glc_ex_rate, +glc_ex_rate)`, so glucose can be taken up or secreted up to that rate
+- Runs an FBA optimization of biomass production (under the enzyme-activity constraints already applied to the model)
+- Prints the flux of every exchange reaction (`EX_*`)
+
+Flux sign convention: negative = uptake (consumed from the medium), positive = secretion. Handy for inspecting what the cell takes in and excretes at a given glucose rate, for example seeing `EX_ac_e` (acetate) turn positive as glucose increases.
 
 ## Requirements
 
