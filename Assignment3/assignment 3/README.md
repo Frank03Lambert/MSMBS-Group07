@@ -279,17 +279,20 @@ and then loop 1 runs unchecked and 37.5% of initial states end in oscillation. L
 
 ### 1. Binary representation
 
-Every biological component can only be ON or OFF. Real biological systems have continuous expression levels and different degrees of activation. The Boolean representation therefore simplifies the actual behavior of genes and proteins.
+Every biological component can only be ON or OFF. Real biological systems have continuous expression levels and different degrees of activation. The Boolean representation simplifies the actual behavior of genes and proteins.
 
-### 2. Simplified biological network
 
-The model contains only eight nodes and a limited number of interactions. Real cell-cycle and cancer regulatory networks contain many more genes, proteins, signaling pathways, and environmental influences.
-
-### 3. Simplified timing
+### 2. Simplified timing
 
 The model assumes synchronous Boolean updates, meaning that all nodes are updated together at each time step. In real cells, biological processes occur at different speeds and are not perfectly synchronized.
 
 Because of these limitations, the model should be interpreted as a simplified representation of regulatory behavior rather than a complete biological model of cancer.
+
+### 3. Mathematical modelling, sometimes biologically implausible
+
+This is a mathematical model of a discrete dynamical system and it is also modelling states which are biologically implausible. Attractors states are then reported
+as a percentage of the total number of initial states weighing all states as if they are equally likely, which is misleading. There can be no states with
+Growth = 1 and Death = 1 simultaneously as an example.
 
 
 ## Notes
