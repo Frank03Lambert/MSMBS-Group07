@@ -145,7 +145,7 @@ For Mutation A, p53 was permanently switched OFF:
 
 This represents loss of the p53 tumor-suppressor function.
 
-Without p53, the network loses an important mechanism responsible for responding to DNA damage. The scenario and attractor analyses were used to examine how this changes the balance between cell growth and cell death.
+Without p53, the network looses an important mechanism responsible for responding to DNA damage. The scenario and attractor analyses were used to examine how this changes the balance between cell growth and cell death.
 
 
 ## Mutation B – MYC Amplification
@@ -205,9 +205,9 @@ should be considered cancer-like based on whether growth is happening with DNA d
 
 With mutations A, B and C, in all 256 initial states fixed-point attractor states
 were found. For mutation D only 160 of 256 states reach a fixed point while
-the remaining 96 were ended up in a limit cycle.
+the remaining 96 ended up in a limit cycle.
 
-A, B and C produce similar attraction pattern: they converge to the same two fixed points, 
+A, B and C all produce a similar attraction pattern: they converge to the same two fixed points, 
 with basins of 128 states each. The reason is that these mutations disable p53 in three 
 ways:
 
@@ -233,9 +233,9 @@ Mutation D shows the cancer-like basin which is similar to that of the healthy c
 states, i.e. 3.1%. If we think of uncontrolled growth in the presence of cell damage as the largest
 danger, then A, B and C are equally and maximally dangerous, and D is the least dangerous one.
 
-***Option 2*** — dangerous because of tshe loss of the ability to respond to damage.
-This option makes scenario D look worse as the cell death state occurence falls from 120 (46.9%)in scenario
-without mutations the normal to 24 (9.4%). 96 states converge in two period-3 limit cycles where Growth stays 0 
+***Option 2*** — dangerous because of the loss of the ability to respond to damage.
+This option makes scenario D look worse as the cell death state occurence falls from 120 (46.9%) in the normal scenario
+without mutations to 24 (9.4%). 96 states converge in two period-3 limit cycles where Growth stays 0 
 but Death is switched on and off. This is not a cancer scenario, but this is not a healthy scenario
 either. So, all four mutations impact the damage response and while A, B and C abolish it, 
 D enters the state of permanent oscillations.
@@ -245,7 +245,7 @@ D enters the state of permanent oscillations.
 **Damage target.** A deletes p53 gene, i.e. the tumor suppressor; B and C disable it as secondary damage. 
 The more direct the damage, the fewer compensation options remain. In scenario C, p53 is inhibited by MDM2,
 but there is a drug class of MDM2 inhibitors, which could potentially solve this issue. Under A the tumour
-suppressor is absent and there is nothing left to reactivate.s
+suppressor is absent and there is nothing left to reactivate it.
 
 ## Role of Feedback Loops
 
@@ -269,7 +269,7 @@ and the loop closes on itself with period 3. So, p21 plays the timing role in th
 Loop 3 (DNA_damage) stems from the rule `DNA_damage = DNA_damage`. Once it has occured, the damage stays a constant external input that cannot be cleared.
 
 In our model, the feedback loops defined what the netwrok can do. Loop 1 is about damage response: theis is the route by which information about DNA damage 
-reaches p53, which decides on the cell fate. Breaking any of the nodes of this loop has the same effect. Loop2 does not carry the response, but rather prevents 
+reaches p53, which decides on the cell fate. Breaking any of the nodes of this loop has the same effect. Loop 2 does not carry the response, but rather prevents 
 loop 1 from oscillating. Holding MYC off for one extra step it helps the network settle into a fixed point. When p21 is knocked out, this loop is affected 
 and then loop 1 runs unchecked and 37.5% of initial states end in oscillation. Loop 3 is a memory loop holding information about DNA damage.
 
@@ -291,8 +291,8 @@ Because of these limitations, the model should be interpreted as a simplified re
 ### 3. Mathematical modelling, sometimes biologically implausible
 
 This is a mathematical model of a discrete dynamical system and it is also modelling states which are biologically implausible. Attractors states are then reported
-as a percentage of the total number of initial states weighing all states as if they are equally likely, which is misleading. There can be no states with
-Growth = 1 and Death = 1 simultaneously as an example.
+as a percentage of the total number of initial states weighing all states as if they are equally likely, which is misleading. For example, it could be that there are no states with
+Growth = 1 and Death = 1 simultaneously.
 
 
 ## Notes
