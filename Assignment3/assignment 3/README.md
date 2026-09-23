@@ -199,16 +199,53 @@ The cancer-like fixed point, where growth continues despite DNA damage, accounts
 
 ## Which Mutation Is Most Dangerous?
 
-The mutations can be compared quantitatively using the percentage of initial states that lead to cancer-like behavior.
+We will compare mutations based on the discovered attractor state and whether it 
+should be considered cancer-like based on whether growth is happening with DNA damage
+(`Growth = 1, Death = 0, DNA_damage = 1`)
 
-The final conclusion should be based on the complete attractor analysis of Mutations A, B, C, and D, using the same definition of a cancer-like state:
+With mutations A, B and C, in all 256 initial states fixed-point attractor states
+were found. For mutation D only 160 of 256 states reach a fixed point while
+the remaining 96 were ended up in a limit cycle.
 
-`Growth = 1, Death = 0, DNA_damage = 1`
+A, B and C produce similar attraction pattern: they converge to the same two fixed points, 
+with basins of 128 states each. The reason is that these mutations disable p53 in three 
+ways:
 
-This ensures that the mutations are compared using the same criterion and all 256 possible initial states.
+- A removes p53 directly.
+- C puts MDM2 on ON, and prevents p53 from activating (`p53 = DNA_damage AND (NOT MDM2)`).
+- B puts MYC on ON, and since `MDM2 = MYC`, MDM2 becomes permanently ON, which converges
+  to the previous scenario.
 
-> **Note:** The final ranking should only be made after the complete fixed-point and limit-cycle analyses for Mutations A, B, and C have been verified.
+Once p53 is permanently 0, the network converges to:
+p21 = 0, MYC = 1, MDM2 = 1, CDK2 = 1, Growth = 1, Death = 0. 
+The only remaining free variable is DNA_damage, which is a binary input, 
+so the 256 states split evenly into two basins of 128.
 
+Thus three different scenarios result in the same functional defect. 
+
+***How we can interpret "most dangerous"?***
+
+***Option 1*** — dangerous because of uncontrolled growth in the presence of damage.
+While in the scenario of a healthy cell we saw 8 (3.1%) cases converging to cancer-like behavior,
+in mutations A, B and C this number grows to 128 (50.0%). Cell death scenario is never happening. 
+
+Mutation D shows the cancer-like basin which is similar to that of the healthy cell (present for 8
+states, i.e. 3.1%. If we think of uncontrolled growth in the presence of cell damage as the largest
+danger, then A, B and C are equally and maximally dangerous, and D is the least dangerous one.
+
+***Option 2*** — dangerous because of tshe loss of the ability to respond to damage.
+This option makes scenario D look worse as the cell death state occurence falls from 120 (46.9%)in scenario
+without mutations the normal to 24 (9.4%). 96 states converge in two period-3 limit cycles where Growth stays 0 
+but Death is switched on and off. This is not a cancer scenario, but this is not a healthy scenario
+either. So, all four mutations impact the damage response and while A, B and C abolish it, 
+D enters the state of permanent oscillations.
+
+***Other factors contributing to danger of a mutation:***
+
+**Damage target.** A deletes p53 gene, i.e. the tumor suppressor; B and C disable it as secondary damage. 
+The more direct the damage, the fewer compensation options remain. In scenario C, p53 is inhibited by MDM2,
+but there is a drug class of MDM2 inhibitors, which could potentially solve this issue. Under A the tumour
+suppressor is absent and there is nothing left to reactivate.s
 
 ## Role of Feedback Loops
 
