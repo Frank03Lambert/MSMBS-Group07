@@ -249,21 +249,30 @@ suppressor is absent and there is nothing left to reactivate.s
 
 ## Role of Feedback Loops
 
-Feedback loops are important because the state of one component can indirectly influence itself through other components.
+A feedback loop is a directed cycle in a regulatory graph: a node that can influence itself through a chain
+of other nodes. Our specific network contains three such cycles:  
+1: p53 -| MYC -> MDM2 -| p53
+2: p53 -> p21 -| MYC -> MDM2 -| p53
+3: DNA_damage -> DNA_damage (because of network.add_rule('DNA_damage', lambda s: s['DNA_damage'], "DNA_damage = INPUT (constant)"))
 
-One important pathway in this model is:
+Loop 1 engages three nodes and mutations A, B and C target one of the nodes of this loop. Therefore, structurally they have the same result:
+p53 cannot be driven by DNA damage. This is why their attractor states are consistent between them. 
+Mutation D is different. Mutation in p21 does not affect loop 1, but impacts on loop 2. Therefore, its convergence pattern is different and 
+often results in oscillations. p21 is in a sense a duplication of p53. It inhibits MYC and CDK2, both of which are also inhibited by p53, 
+so its mutation affects no new targets. This is why the p21 knockout is less severe: the network is still functional, 
+and the cancer-like share of ultimate states stays unchanged from the healthy network.
 
-`MYC → MDM2 ┤ p53`
+The duplication is not simultaneous, however. Since p21 = p53, p21 follows p53 by one step, and is therefore still active for one step after p53 switches off. 
+That is the step at which MYC would otherwise reactivate and restart loop 1. Removing p21 leaves that single step uncovered, MYC switches back on, 
+and the loop closes on itself with period 3. So, p21 plays the timing role in this model.
 
-MYC activates MDM2, while MDM2 inhibits p53. Therefore, increased MYC activity can indirectly reduce the activity of the p53 tumor-suppressor pathway.
+Loop 3 (DNA_damage) stems from the rule `DNA_damage = DNA_damage`. Once it has occured, the damage stays a constant external input that cannot be cleared.
 
-p53 also activates p21:
+In our model, the feedback loops defined what the netwrok can do. Loop 1 is about damage response: theis is the route by which information about DNA damage 
+reaches p53, which decides on the cell fate. Breaking any of the nodes of this loop has the same effect. Loop2 does not carry the response, but rather prevents 
+loop 1 from oscillating. Holding MYC off for one extra step it helps the network settle into a fixed point. When p21 is knocked out, this loop is affected 
+and then loop 1 runs unchecked and 37.5% of initial states end in oscillation. Loop 3 is a memory loop holding information about DNA damage.
 
-`p53 → p21`
-
-p21 acts as a cell-cycle inhibitor and suppresses growth-related activity.
-
-These interactions allow the network to switch between different long-term behaviors depending on DNA damage and oncogenic signals. Mutations that interrupt these regulatory relationships can change which attractors are reachable and the sizes of their basins.
 
 
 ## Limitations of the Boolean Network Model
