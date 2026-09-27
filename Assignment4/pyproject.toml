@@ -1,0 +1,31 @@
+[project]
+name = "ken3170"
+version = "0.1.0"
+description = "KEN3170 Computational Neuroscience"
+requires-python = ">=3.11"
+dependencies = [
+    "matplotlib",
+    "numpy",
+    "rsatoolbox",
+    "scipy",
+    "soundfile",
+    "torch",
+    "torchaudio",
+    "h5py",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+include = [
+    "assignment/models.py",
+    "assignment/config.py",
+    "assignment/core.py",
+    "assignment/util.py",
+    "assignment/train.py",
+]
+
+[tool.hatch.build.targets.wheel.sources]
+"assignment" = ""
