@@ -160,30 +160,39 @@ class BiologicalModel(torch.nn.Module):
         # neurons cannot fire negatively (lower bound 0) and have an absolute 
         # maximum firing rate capacity (upper bound 6).
         self.activation = torch.nn.ReLU6()
-        self.pool = torch.nn.MaxPool2d(2) # Downsamples the feature maps to reduce dimensionality and simulate pooling in the auditory cortex.
+
+        # Downsamples the feature maps to reduce dimensionality and simulate pooling in the auditory cortex.
+        # Early layer pools frequency and time.
+        self.pool_both = torch.nn.MaxPool2d(kernel_size=(2,2))
+
+        # Later layers pool only frequency (dimension 0), preserving time (dimension 1).
+        self.pool_freq = torch.nn.MaxPool2d(kernel_size=(2,1))
 
         # Primary Auditory Cortex (A1)
         # Input channels: 1 (Mel-spectrogram). Output: 32
         self.conv_a1 = torch.nn.Conv2d(1, 32, kernel_size=3, padding=1)
-        self.norm_a1 = torch.nn.BatchNorm2d(32) # Simulates lateral inhibition
+        # size=3 simulates local lateral inhibition, alpha, beta, and k are hyperparameters that control the normalization effect.
+        # These parameters alpha, beta and k are set to these values because these values are the established, historically proven hyperparameters originally derived empirically by Krizhevsky et al. (2012) in the AlexNet architecture specifically for the purpose of biological divisive normalization.
+        # The size parameter was adapted from 5 to 3 to scale with our network's more constrained channel capacity.
+        self.norm_a1 = torch.nn.LocalResponseNorm(size=3, alpha=1e-4, beta=0.75, k=2.0)
 
         # Lateral Belt (LBelt) & Medial Belt (MBelt)
         # Two parallel branches, both receiving input from A1
         self.conv_lbelt = torch.nn.Conv2d(32, 32, kernel_size=3, padding=1)
-        self.norm_lbelt = torch.nn.BatchNorm2d(32)
+        self.norm_lbelt = torch.nn.LocalResponseNorm(size=3, alpha=1e-4, beta=0.75, k=2.0)
         
         self.conv_mbelt = torch.nn.Conv2d(32, 32, kernel_size=3, padding=1)
-        self.norm_mbelt = torch.nn.BatchNorm2d(32)
+        self.norm_mbelt = torch.nn.LocalResponseNorm(size=3, alpha=1e-4, beta=0.75, k=2.0)
 
         # Parabelt (PBelt)
         # Receives concatenated input from LBelt (32) and MBelt (32), so 64 channels
         self.conv_pbelt = torch.nn.Conv2d(64, 64, kernel_size=3, padding=1)
-        self.norm_pbelt = torch.nn.BatchNorm2d(64)
+        self.norm_pbelt = torch.nn.LocalResponseNorm(size=5, alpha=1e-4, beta=0.75, k=2.0) # The size parameter is increased to 5 to allow for a broader normalization effect across the combined feature maps from both belt areas, reflecting the increased complexity and integration at this stage of auditory processing.
 
         # A4 Region. The output from this layer will be fed into the recurrent layer for temporal integration.
         # The output channels are increased to 128 to allow for richer feature representation before temporal integration.
         self.conv_a4 = torch.nn.Conv2d(64, 128, kernel_size=3, padding=1)
-        self.norm_a4 = torch.nn.BatchNorm2d(128)
+        self.norm_a4 = torch.nn.LocalResponseNorm(size=5, alpha=1e-4, beta=0.75, k=2.0)
 
         # A5 / Superior Temporal Sulcus (STS)
         # Recurrent layer for temporal integration. Bidirectional models context
@@ -214,18 +223,18 @@ class BiologicalModel(torch.nn.Module):
             Logits of shape (batch, num_classes).
         """
         # A1 Processing
-        x_a1 = self.pool(self.activation(self.norm_a1(self.conv_a1(spectrogram))))
+        x_a1 = self.pool_both(self.activation(self.norm_a1(self.conv_a1(spectrogram))))
 
         # Parallel Belt Processing
-        x_lbelt = self.pool(self.activation(self.norm_lbelt(self.conv_lbelt(x_a1))))
-        x_mbelt = self.pool(self.activation(self.norm_mbelt(self.conv_mbelt(x_a1))))
+        x_lbelt = self.pool_freq(self.activation(self.norm_lbelt(self.conv_lbelt(x_a1))))
+        x_mbelt = self.pool_freq(self.activation(self.norm_mbelt(self.conv_mbelt(x_a1))))
 
         # PBelt Integration (Concatenate LBelt and MBelt along the channel dimension)
         x_merged = torch.cat([x_lbelt, x_mbelt], dim=1)
-        x_pbelt = self.pool(self.activation(self.norm_pbelt(self.conv_pbelt(x_merged))))
+        x_pbelt = self.pool_freq(self.activation(self.norm_pbelt(self.conv_pbelt(x_merged))))
 
         # A4 Processing
-        x_a4 = self.pool(self.activation(self.norm_a4(self.conv_a4(x_pbelt))))
+        x_a4 = self.pool_freq(self.activation(self.norm_a4(self.conv_a4(x_pbelt))))
 
         # Transition from Convolutions to Recurrence
         # Average across the remaining frequency (tonotopic) bins, keeping the time dimension
