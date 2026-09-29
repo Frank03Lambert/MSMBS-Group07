@@ -136,3 +136,105 @@ class InspiredModel(torch.nn.Module):
         last_hidden = hidden[-1]
 
         return self.classifier(last_hidden)
+
+class BiologicalModel(torch.nn.Module):
+    """ A biologically inspired CRNN modeling the auditory pathway.
+    
+    Motivated Mapping:
+    - A1: Initial convolutional layer for basic spectrotemporal feature extraction.
+    - LBelt & MBelt: Two parallel convolutional branches for specialized intermediate processing.
+    - PBelt: Concatenation and convolution to integrate the parallel belt pathways.
+    - A4: Final convolutional abstraction layer.
+    - A5/STS: Bidirectional GRU to integrate temporal context over the sequence.
+    
+    Args: num_classes: Number of output classes.
+    """
+
+    def __init__(
+            self,
+            num_classes: int
+    ):
+        super().__init__()
+        
+        # We use ReLU6 to model the biological constraint that 
+        # neurons cannot fire negatively (lower bound 0) and have an absolute 
+        # maximum firing rate capacity (upper bound 6).
+        self.activation = torch.nn.ReLU6()
+        self.pool = torch.nn.MaxPool2d(2) # Downsamples the feature maps to reduce dimensionality and simulate pooling in the auditory cortex.
+
+        # Primary Auditory Cortex (A1)
+        # Input channels: 1 (Mel-spectrogram). Output: 32
+        self.conv_a1 = torch.nn.Conv2d(1, 32, kernel_size=3, padding=1)
+        self.norm_a1 = torch.nn.BatchNorm2d(32) # Simulates lateral inhibition
+
+        # Lateral Belt (LBelt) & Medial Belt (MBelt)
+        # Two parallel branches, both receiving input from A1
+        self.conv_lbelt = torch.nn.Conv2d(32, 32, kernel_size=3, padding=1)
+        self.norm_lbelt = torch.nn.BatchNorm2d(32)
+        
+        self.conv_mbelt = torch.nn.Conv2d(32, 32, kernel_size=3, padding=1)
+        self.norm_mbelt = torch.nn.BatchNorm2d(32)
+
+        # Parabelt (PBelt)
+        # Receives concatenated input from LBelt (32) and MBelt (32), so 64 channels
+        self.conv_pbelt = torch.nn.Conv2d(64, 64, kernel_size=3, padding=1)
+        self.norm_pbelt = torch.nn.BatchNorm2d(64)
+
+        # A4 Region. The output from this layer will be fed into the recurrent layer for temporal integration.
+        # The output channels are increased to 128 to allow for richer feature representation before temporal integration.
+        self.conv_a4 = torch.nn.Conv2d(64, 128, kernel_size=3, padding=1)
+        self.norm_a4 = torch.nn.BatchNorm2d(128)
+
+        # A5 / Superior Temporal Sulcus (STS)
+        # Recurrent layer for temporal integration. Bidirectional models context
+        # from both past and future acoustic cues.
+        rnn_hidden_size = 128 # The hidden size is set to 128 to balance model capacity and computational efficiency.
+        self.rnn = torch.nn.GRU(
+            input_size=128, 
+            hidden_size=rnn_hidden_size, 
+            num_layers=2, # Two layers allow the model to capture more complex temporal dependencies in the auditory signal.
+            batch_first=True, # Ensures that the input and output tensors are of shape (batch, seq, feature), which is standard for sequence data.
+            bidirectional=True # The bidirectional setting allows the GRU to capture context from both past and future time steps, which is important for understanding temporal patterns in auditory signals.
+        )
+
+        # Final Classifier
+        # Input size is 256 because the GRU is bidirectional (128 * 2 = 256)
+        self.classifier = torch.nn.Linear(rnn_hidden_size * 2, num_classes)
+
+    def forward(
+            self,
+            spectrogram: torch.Tensor
+    ) -> torch.Tensor:
+        """ Runs the model forward.
+
+        Args:
+            spectrogram: Tensor of shape (batch, 1, n_freq, n_time).
+
+        Returns:
+            Logits of shape (batch, num_classes).
+        """
+        # A1 Processing
+        x_a1 = self.pool(self.activation(self.norm_a1(self.conv_a1(spectrogram))))
+
+        # Parallel Belt Processing
+        x_lbelt = self.pool(self.activation(self.norm_lbelt(self.conv_lbelt(x_a1))))
+        x_mbelt = self.pool(self.activation(self.norm_mbelt(self.conv_mbelt(x_a1))))
+
+        # PBelt Integration (Concatenate LBelt and MBelt along the channel dimension)
+        x_merged = torch.cat([x_lbelt, x_mbelt], dim=1)
+        x_pbelt = self.pool(self.activation(self.norm_pbelt(self.conv_pbelt(x_merged))))
+
+        # A4 Processing
+        x_a4 = self.pool(self.activation(self.norm_a4(self.conv_a4(x_pbelt))))
+
+        # Transition from Convolutions to Recurrence
+        # Average across the remaining frequency (tonotopic) bins, keeping the time dimension
+        x_temporal = x_a4.mean(dim=2).transpose(1, 2)
+
+        # A5/STS Temporal Integration
+        _, hidden = self.rnn(x_temporal)
+        
+        # Extract the final hidden states from both forward and backward RNN passes
+        last_hidden = torch.cat((hidden[-2], hidden[-1]), dim=1)
+
+        return self.classifier(last_hidden)

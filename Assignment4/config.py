@@ -3,8 +3,8 @@ from pathlib import Path
 DATA_DIR = Path(__file__).resolve().parent / "data"
 
 # ESC-50 (training data for Part II)
-ESC50_AUDIO_DIR = "<your-path-to-esc50>/audio"
-ESC50_META_CSV = "<your-path-to-esc50>/meta/esc50.csv"
+ESC50_AUDIO_DIR = "data/ESC50/audio"
+ESC50_META_CSV = "data/ESC50/meta/esc50.csv"
 CLIP_DURATION = 5.0
 NUM_CLASSES = 50
 
