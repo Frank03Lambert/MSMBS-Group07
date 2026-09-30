@@ -172,7 +172,7 @@ class BiologicalModel(torch.nn.Module):
         # Input channels: 1 (Mel-spectrogram). Output: 32
         self.conv_a1 = torch.nn.Conv2d(1, 32, kernel_size=3, padding=1)
         # size=3 simulates local lateral inhibition, alpha, beta, and k are hyperparameters that control the normalization effect.
-        # These parameters alpha, beta and k are set to these values because these values are the established, historically proven hyperparameters originally derived empirically by Krizhevsky et al. (2012) in the AlexNet architecture specifically for the purpose of biological divisive normalization.
+        # These parameters alpha, beta and k are set to these values because these values are the established, historically proven hyperparameters originally derived empirically by Krizhevsky et al. (2012) in the AlexNet architecture.
         # The size parameter was adapted from 5 to 3 to scale with our network's more constrained channel capacity.
         self.norm_a1 = torch.nn.LocalResponseNorm(size=3, alpha=1e-4, beta=0.75, k=2.0)
 
