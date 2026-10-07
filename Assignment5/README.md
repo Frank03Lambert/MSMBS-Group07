@@ -7,13 +7,11 @@ We opened the Infection model, which loads pathogen_infection.xml, and ran it fo
 
 
 
-
-
-
-
-
-
-
+<img width="221" height="214" alt="image" src="https://github.com/user-attachments/assets/1d131e12-afb5-4bf6-bdab-abcac59d7465" />
+<img width="283" height="220" alt="image" src="https://github.com/user-attachments/assets/56b9a75f-32a7-4550-a0ca-c472a3242172" />
+<img width="241" height="203" alt="image" src="https://github.com/user-attachments/assets/a95f9081-8b69-42d9-82eb-57116fcaa9a9" />
+<img width="229" height="204" alt="image" src="https://github.com/user-attachments/assets/e10953df-fd7f-4cbc-a7c5-734ba856eaab" />
+<img width="252" height="223" alt="image" src="https://github.com/user-attachments/assets/38cce174-1c26-4885-a510-7d0063c12109" />
 
 At the start, the pathogen (the red cell) sits just outside the left edge of the tissue and none of the plant cells are infected yet. The healthy cells are light blue, and the cell files on the right side are green. As the simulation runs, the cells closest to the pathogen turn purple because the chemical produced by the pathogen diffuses into them. The infection first spreads along the outermost cell file on the left, the one in contact with the pathogen, from top to bottom, and then moves inward more slowly, one cell file at a time. After 2 hours, most of the first two cell files (roughly a quarter of the tissue) are purple and some cells in the third file are starting to change colour. The green cell files on the right are not affected at all.
 The tissue also deforms. The pathogen keeps growing, so it takes up more space and pushes against the plant cells around it. Because the infected cells have weaker walls, they are deformed more easily and get squeezed, while cells further away mostly keep their shape. The cells also get rounder and the walls look thicker between 0 and 30 minutes, but this happens in the whole tissue, also far away from the pathogen, so it is only the tissue mehcanics settling at the start. The deformation caused by the infection is local, around the pathogen.
@@ -22,7 +20,6 @@ In CellHouseKeeping, each plant cell first looks at its chemical concentration. 
 This matches what was explained in the lecture, where fungi and bacteria produce chemicals that weaken the plant cell wall to make it easier to infect the tissue.
 The pathogen behaves differently in a few ways. Its own walls are never weakened, because the weakening rule skips cell type 2, so it always keeps a stiffness of 3. It is also the only cell that grows: every step its target area increases by 2, and when its area becomes larger than rel_cell_div_threshold times the base area, it divides. The base area is a reference value that is the same for all cells (1000 in pathogen_infection.xml), not the pathogen's own starting size, which is about 559. Finally, in CellDynamics the pathogen produces the chemical at a constant rate, while the plant cells only slowly degrade it. So the pathogen is the source of the chemical and the plant cells are the ones affected by it.
 
-<img width="221" height="214" alt="image" src="https://github.com/user-attachments/assets/1d131e12-afb5-4bf6-bdab-abcac59d7465" />
 
 Question 3
 In CelltoCellTransport the chemical moves between neighbouring cells through passive diffusion, in a similar way to auxin in the previous exercise. The flux depends on the length of the wall, the diffusion coefficient and the difference in concentration between the two cells, with a small correction for the cell areas.
@@ -30,12 +27,7 @@ The difference with the auxin model is that the diffusion coefficient is not a f
 This creates a feedback loop. When a cell receives the chemical, its walls become softer (question 2). Softer walls give a higher diffusion coefficient, so the chemical moves faster through those walls into the next cells. These cells then also get softer walls and pass the chemical on even faster. Each step strengthens the next one, so this is a positive feedback loop, and the infection basically speeds up its own spread. It does not grow without limit, because the stiffness cannot go below 3 − 1.2 = 1.8. The diffusion coefficient therefore ranges from 0.00001/3 ≈ 3.3·10⁻⁶ (healthy wall) to 0.00001/1.8 ≈ 5.6·10⁻⁶ (fully weakened wall), so it can increase by at most a factor 3/1.8 ≈ 1.67. On top of that, plant cells degrade the chemical at a rate of 0.001 × their chemical level (CellDynamics).
 We can also check the sign of the loop with what we saw about feedback loops in the network biology lecture, where a loop is positive if it contains an even number of negative interactions. Here, more chemical lowers the stiffness (a negative interaction), and since the diffusion coefficient is 0.00001 divided by the stiffness, stiffness also has a negative effect on diffusion (a second negative interaction). Higher diffusion then increases the amount of chemical in the neighbouring cells (a positive interaction). Two negative interactions give a positive loop, which confirms what we described above. 
 
-
-
-
-
-
-
+<img width="487" height="392" alt="image" src="https://github.com/user-attachments/assets/995d8200-7b89-4210-9ba1-03fc500ff686" />
 
 
 
@@ -49,7 +41,17 @@ The pathogen divides when its area becomes larger than rel_cell_div_threshold ti
 Run 1: rel_cell_div_threshold = 1. 
 
 
+<img width="158" height="154" alt="image" src="https://github.com/user-attachments/assets/4a6661a9-570b-4ef5-b57a-0065d331fa15" />
+
+
+
+
 Run 2: rel_cell_div_threshold = 3. 
+
+
+<img width="195" height="189" alt="image" src="https://github.com/user-attachments/assets/685d9c7c-3fdc-4ef1-8de6-11004f4199eb" />
+
+
 
 
 
