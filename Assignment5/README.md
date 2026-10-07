@@ -68,6 +68,16 @@ In our runs, the infected region looked almost the same for all thresholds we tr
 
 **Why changing the threshold did not help.** The threshold only decides at which area the pathogen divides. It does not change how fast the pathogen grows, because its target area increases by a fixed 2 per step, whatever the threshold is. The first division therefore comes after about (threshold × 1000 − 559) / 2 steps of 10 seconds: about 221 steps (37 minutes) for threshold 1, 721 steps (just after 2 hours) for threshold 2 and 1221 steps (about 3 hours 24 minutes) for threshold 3. These are the earliest possible moments, because the division check uses the actual area, which follows the target area with a delay. In the run with threshold 1 the pathogen indeed divided only after about 68 minutes, not after 37, because its actual area crossed 1000 only then. So in a 2-hour run thresholds 2, 3 and 15 all mean "no division", which is why these runs looked the same, and only thresholds of 1 or lower can lead to a division at all. In the output of the default run (threshold 2) the pathogen stays a single cell during the whole 2 hours (47 cells in every snapshot): its target area grows from 559 to 1999 as expected, but its actual area only reaches about 1600, so the division condition is never met. In the run with threshold 1 the pathogen consisted of 2 cells at the end (48 cells in total), but the number of infected plant cells was 11, the same as in the default run at 2 hours. It reached 11 after 63 minutes, before the division, and did not increase after it. We also ran threshold 0.5. The pathogen starts with an area of about 552, which is already above 0.5 × 1000, so it divides right at the start and ends with 7 cells after 2 hours (53 cells in total). Even then the number of infected plant cells at 2 hours was again 11, and the spread was even slower in the first hour (6 infected cells after 60 minutes, against 10 or 11 in the other runs). So more pathogen cells did not make the infection spread faster. This suggests that the spread is mainly set by how fast the chemical diffuses through the cell walls (question 3), and not by the number of pathogen cells. The threshold was therefore not a useful parameter to vary here. To see an effect, we would need a much longer run or a change to something that acts directly on the chemical or the walls, which is fixed in the model code.
 
+Table 1: Summary of the five runs, based on the snapshots saved every 3 minutes. A plant cell is counted as infected when its chemical level is above 0.05, the level at which CellHouseKeeping starts to weaken its walls.
+
+| Run | Threshold | First division | Pathogen cells at 2 h | Cells in total | Infected plant cells at 30 / 60 / 90 / 120 min |
+|---|---|---|---|---|---|
+| Default | 2 | none | 1 | 47 | 6 / 10 / 10 / 11 |
+| Run 1 | 1 | about 68 min | 2 | 48 | 6 / 10 / 11 / 11 |
+| Run 2 | 3 | none | 1 | 47 | 6 / 10 / 11 / 11 |
+| Run 3 | 0.5 | within the first 3 min | 7 | 53 | 5 / 6 / 9 / 11 |
+| Run 4 | 15 | none | 1 | 47 | 6 / 11 / 11 / 11 |
+
 
 ## Question 5
 
