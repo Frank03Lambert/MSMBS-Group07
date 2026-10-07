@@ -1,1 +1,83 @@
 # Assignment 5
+
+KEN3170 Plant Tissue Simulations: Assignment
+
+Question 1
+We opened the Infection model, which loads pathogen_infection.xml, and ran it for 2 hours of simulated time. We took a screenshot at the start and then every 30 minutes.
+
+
+
+
+
+
+
+
+
+
+
+At the start, the pathogen (the red cell) sits just outside the left edge of the tissue and none of the plant cells are infected yet. The healthy cells are light blue, and the cell files on the right side are green. As the simulation runs, the cells closest to the pathogen turn purple because the chemical produced by the pathogen diffuses into them. The infection first spreads along the outermost cell file on the left, the one in contact with the pathogen, from top to bottom, and then moves inward more slowly, one cell file at a time. After 2 hours, most of the first two cell files (roughly a quarter of the tissue) are purple and some cells in the third file are starting to change colour. The green cell files on the right are not affected at all.
+The tissue also deforms. The pathogen keeps growing, so it takes up more space and pushes against the plant cells around it. Because the infected cells have weaker walls, they are deformed more easily and get squeezed, while cells further away mostly keep their shape. The cells also get rounder and the walls look thicker between 0 and 30 minutes, but this happens in the whole tissue, also far away from the pathogen, so it is only the tissue mehcanics settling at the start. The deformation caused by the infection is local, around the pathogen.
+Question 2
+In CellHouseKeeping, each plant cell first looks at its chemical concentration. This value is divided by 0.5 and capped at 1.2, which gives a sort of infection level. If this infection level is above 0.1 and the cell is not the pathogen, the stiffness of all its wall elements is set to 3 minus the infection level. If the level is 0.1 or lower, the cell just keeps the normal stiffness of 3. So the more chemical a cell has, the softer its walls get, and this relation is linear. Because of the cap at 1.2, the stiffness can never go lower than 1.8. Infected cells also lose their veto, which is relevant for question 5.
+This matches what was explained in the lecture, where fungi and bacteria produce chemicals that weaken the plant cell wall to make it easier to infect the tissue.
+The pathogen behaves differently in a few ways. Its own walls are never weakened, because the weakening rule skips cell type 2, so it always keeps a stiffness of 3. It is also the only cell that grows: every step its target area increases by 2, and when its area becomes larger than rel_cell_div_threshold times the base area, it divides. The base area is a reference value that is the same for all cells (1000 in pathogen_infection.xml), not the pathogen's own starting size, which is about 559. Finally, in CellDynamics the pathogen produces the chemical at a constant rate, while the plant cells only slowly degrade it. So the pathogen is the source of the chemical and the plant cells are the ones affected by it.
+
+<img width="221" height="214" alt="image" src="https://github.com/user-attachments/assets/1d131e12-afb5-4bf6-bdab-abcac59d7465" />
+
+Question 3
+In CelltoCellTransport the chemical moves between neighbouring cells through passive diffusion, in a similar way to auxin in the previous exercise. The flux depends on the length of the wall, the diffusion coefficient and the difference in concentration between the two cells, with a small correction for the cell areas.
+The difference with the auxin model is that the diffusion coefficient is not a fixed parameter. First, the function getLengthAndStiffness calculates the average stiffness of the wall between the two cells, weighted by the length of the wall elements and taking both sides of the wall into account. The diffusion coefficient is then 0.00001 divided by this average stiffness. This means that a softer wall lets the chemical pass through faster. If the stiffness is almost zero, the code just uses 0.00001 so it does not divide by a number close to zero.
+This creates a feedback loop. When a cell receives the chemical, its walls become softer (question 2). Softer walls give a higher diffusion coefficient, so the chemical moves faster through those walls into the next cells. These cells then also get softer walls and pass the chemical on even faster. Each step strengthens the next one, so this is a positive feedback loop, and the infection basically speeds up its own spread. It does not grow without limit, because the stiffness cannot go below 3 − 1.2 = 1.8. The diffusion coefficient therefore ranges from 0.00001/3 ≈ 3.3·10⁻⁶ (healthy wall) to 0.00001/1.8 ≈ 5.6·10⁻⁶ (fully weakened wall), so it can increase by at most a factor 3/1.8 ≈ 1.67. On top of that, plant cells degrade the chemical at a rate of 0.001 × their chemical level (CellDynamics).
+We can also check the sign of the loop with what we saw about feedback loops in the network biology lecture, where a loop is positive if it contains an even number of negative interactions. Here, more chemical lowers the stiffness (a negative interaction), and since the diffusion coefficient is 0.00001 divided by the stiffness, stiffness also has a negative effect on diffusion (a second negative interaction). Higher diffusion then increases the amount of chemical in the neighbouring cells (a positive interaction). Two negative interactions give a positive loop, which confirms what we described above. 
+
+
+
+
+
+
+
+
+
+
+
+Figure 1 : Sketch of the feedback loop between the chemical, the wall stiffness and the diffusion coefficient.
+
+
+Question 4
+The pathogen divides when its area becomes larger than rel_cell_div_threshold times the base area, which is a fixed reference value of 1000 for all cells. The pathogen starts with an area of about 559, and in each simulation step its target area increases by 2. Since every step corresponds to 10 seconds (rd_dt = 10), a run of 2 hours is 720 steps, so the target area of the pathogen can only increase by about 1440, to a maximum of about 2000. We expected that a lower threshold would make the pathogen divide earlier and more often, and that more pathogen cells would make the infection spread faster.
+
+Run 1: rel_cell_div_threshold = 1. 
+
+
+Run 2: rel_cell_div_threshold = 3. 
+
+
+
+In our runs, the infected region looked almost the same for all thresholds we tried (1, 3 and also 15), covering roughly the first two cell files after 2 hours. This can be explained by the numbers above: with a threshold of 3 or higher the pathogen would need an area of at least 3000 to divide, which it cannot reach within 2 hours, so it never divides and the threshold has no effect at all. Even with the default value of 2, the pathogen barely reaches the required area of 2000 by the end of the run. Only with a threshold of 1 (area larger than 1000) can the pathogen divide within 2 hours. Even then, the spread of the infection did not visibly change, which suggests that within this time the spread is mainly limited by how fast the chemical diffuses through the plant cell walls and not by the number of pathogen cells. To see a clear effect of the threshold, the simulation would have to run much longer, so that the pathogen reaches the division threshold several times.
+
+
+Question 5
+In the auxin model, which is the other model we worked with, all cells are treated the same way: no cell is ever prevented from rearranging its walls with its neighbours. The infection model is different, because it is the only model that uses the cell veto (SetCellVeto in CellHouseKeeping). With wall reconfiguration switched on (compatibility_level = 65535), wall elements can be moved from one cell to a neighbouring cell, so cells can gain or lose neighbours. Healthy cells set their veto to true, so their walls cannot be moved and they keep their neighbours. Cells that have been weakened by the pathogen's chemical set their veto to false, so only in the infected part of the tissue can walls shift and cells change neighbours. Whether a cell can change neighbours therefore depends on its state, which fits a pathogen pushing its way between weakened cells. In addition, the exchange of chemical between two neighbours depends on the wall they share: the diffusion coefficient is calculated from the stiffness of both cells' sides of that wall, while in the auxin model passive diffusion uses the same D for every pair of neighbours.
+
+
+Question 6
+The idea of the defense is that a plant cell that detects a lot of the chemical makes its walls stiffer instead of letting them be weakened. This would go in CellHouseKeeping, in the part that handles the plant cells, right after the infection level is calculated. The defense check needs to happen before the existing weakening rule, otherwise the weakening would overwrite it. We would also need two new parameters, a defense threshold and a defense stiffness that is higher than the normal value of 3.
+Pseudocode for CellHouseKeeping:
+for each cell c:
+    if c is the pathogen:
+        grow and divide as before, keep stiffness 3
+    else:
+        level = chemical of c / 0.5, capped at 1.2
+        if level > defense_threshold:
+            set stiffness of all walls of c to defense_stiffness
+            keep veto on
+        else if level > 0.1:
+            set stiffness of all walls of c to 3 - level
+            turn veto off
+        else:
+            set stiffness of all walls of c to 3
+            keep veto on
+
+Optionally, in SetCellColor we could give defended cells a different colour so we can see where the defense is active.
+This adds a negative feedback. With the defense, more chemical in a cell leads to stiffer walls. Since the diffusion coefficient is 0.00001 divided by the stiffness, stiffer walls lower the diffusion, so the chemical spreads more slowly to the next cells. So more chemical now leads to less spreading, which works against the positive feedback from question 3. The defended cells could act like a barrier that slows down or even stops the infection.
+Counting the interactions in the same way as in question 3: more chemical now increases the stiffness (a positive interaction), stiffness still has a negative effect on the diffusion coefficient (a negative interaction), and higher diffusion still increases the chemical in the neighbouring cells (a positive interaction). There is only one negative interaction, so the loop is negative.
