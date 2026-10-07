@@ -1,6 +1,6 @@
-# Assignment 5
+# Assignment 5: Plant Tissue Simulations
 
-KEN3170 Plant Tissue Simulations: Assignment
+**Authors:** Irina Kalmykova (I6365269), Kimi Knaider (I6367547), Frank Lambert (I6354310), Elias Loisel (I6359467), Noortje van Maldegem (I6374487)
 
 ## Question 1
 
@@ -45,30 +45,52 @@ Figure 1 was generated using Claude but we thought it is nice to have a sketch o
 
 ## Question 4
 
-The pathogen divides when its area becomes larger than rel_cell_div_threshold times the base area, which is a fixed reference value of 1000 for all cells. The pathogen starts with an area of about 559, and in each simulation step its target area increases by 2. Since every step corresponds to 10 seconds (rd_dt = 10), a run of 2 hours is 720 steps, so the target area of the pathogen can only increase by about 1440, to a maximum of about 2000. We expected that a lower threshold would make the pathogen divide earlier and more often, and that more pathogen cells would make the infection spread faster.
+The pathogen divides when its area becomes larger than rel_cell_div_threshold times the base area, which is a fixed reference value of 1000 for all cells. The pathogen starts with a target area of about 559, and in each simulation step a pathogen cell's target area increases by 2. Since every step corresponds to 10 seconds (rd_dt = 10), a run of 2 hours is 720 steps, so the target area of a single undivided pathogen cell can only increase by about 1440, to a maximum of about 2000. We expected that a lower threshold would make the pathogen divide earlier and more often—causing the pathogen population to expand faster—and that having more pathogen cells would also make the infection spread faster through the plant tissue.
 
 Run 1: rel_cell_div_threshold = 1. 
 
-
-<img width="158" height="154" alt="image" src="https://github.com/user-attachments/assets/4a6661a9-570b-4ef5-b57a-0065d331fa15" />
-
-
-
-
-Run 2: rel_cell_div_threshold = 3. 
-
-
-<img width="195" height="189" alt="image" src="https://github.com/user-attachments/assets/685d9c7c-3fdc-4ef1-8de6-11004f4199eb" />
+<img height="150" alt="Schermafbeelding 2026-10-07 om 20 43 56" src="https://github.com/user-attachments/assets/ad2075a6-36ea-4f1f-85c1-0a48833ee476" />
+<img height="150" alt="3E4D0842-2E79-4059-B23F-A5F39EE031B0" src="https://github.com/user-attachments/assets/7ba7dfee-b217-4b31-9c82-765607121c44" />
+<img height="150" alt="921FBDB6-F251-45AC-91E8-2F3606854D19" src="https://github.com/user-attachments/assets/dbc9746e-3256-4d48-b4c8-c8f2760063bd" />
+<img height="150" alt="5ED89737-E415-4F1D-A7DD-6679014AC96D" src="https://github.com/user-attachments/assets/7cc5f6d2-0d06-4389-b1dd-f05bf613df38" />
+<img height="150" alt="99787888-4D29-483A-909E-DA1D0268347F" src="https://github.com/user-attachments/assets/741f04ce-c5b6-4eb1-a735-f8de38f6b0c1" />
 
 
 
 
 
-In our runs, the infected region looked almost the same for all thresholds we tried (1, 3 and also 15), covering roughly the first two cell files after 2 hours. This can be explained by the numbers above: with a threshold of 3 or higher the pathogen would need an area of at least 3000 to divide, which it cannot reach within 2 hours, so it never divides and the threshold has no effect at all. Even with the default value of 2, the pathogen barely reaches the required area of 2000 by the end of the run. Only with a threshold of 1 (area larger than 1000) can the pathogen divide within 2 hours. Even then, the spread of the infection did not visibly change, which suggests that within this time the spread is mainly limited by how fast the chemical diffuses through the plant cell walls and not by the number of pathogen cells. To see a clear effect of the threshold, the simulation would have to run much longer, so that the pathogen reaches the division threshold several times.
 
-**Why changing the threshold did not help.** The threshold only decides at which area the pathogen divides. It does not change how fast the pathogen grows, because its target area increases by a fixed 2 per step, whatever the threshold is. The first division therefore comes after about (threshold × 1000 − 559) / 2 steps of 10 seconds: about 221 steps (37 minutes) for threshold 1, 721 steps (just after 2 hours) for threshold 2 and 1221 steps (about 3 hours 24 minutes) for threshold 3. These are the earliest possible moments, because the division check uses the actual area, which follows the target area with a delay. In the run with threshold 1 the pathogen indeed divided only after about 68 minutes, not after 37, because its actual area crossed 1000 only then. So in a 2-hour run thresholds 2, 3 and 15 all mean "no division", which is why these runs looked the same, and only thresholds of 1 or lower can lead to a division at all. In the output of the default run (threshold 2) the pathogen stays a single cell during the whole 2 hours (47 cells in every snapshot): its target area grows from 559 to 1999 as expected, but its actual area only reaches about 1600, so the division condition is never met. In the run with threshold 1 the pathogen consisted of 2 cells at the end (48 cells in total), but the number of infected plant cells was 11, the same as in the default run at 2 hours. It reached 11 after 63 minutes, before the division, and did not increase after it. We also ran threshold 0.5. The pathogen starts with an area of about 552, which is already above 0.5 × 1000, so it divides right at the start and ends with 7 cells after 2 hours (53 cells in total). Even then the number of infected plant cells at 2 hours was again 11, and the spread was even slower in the first hour (6 infected cells after 60 minutes, against 10 or 11 in the other runs). So more pathogen cells did not make the infection spread faster. This suggests that the spread is mainly set by how fast the chemical diffuses through the cell walls (question 3), and not by the number of pathogen cells. The threshold was therefore not a useful parameter to vary here. To see an effect, we would need a much longer run or a change to something that acts directly on the chemical or the walls, which is fixed in the model code.
+Run 2: rel_cell_div_threshold = 3.
+
+<img height="150" alt="D1E8FEEC-FACB-4251-9DD4-88EF194A0BB1" src="https://github.com/user-attachments/assets/f827b98b-8e07-463a-a18e-d92ba4a6b152" />
+<img height="150" alt="6B2B1F5E-9E91-47BD-B76F-E0622611F77D" src="https://github.com/user-attachments/assets/c7071e2f-ca5d-4196-a49f-fe6189cef194" />
+<img height="150" alt="415906F7-79D0-48AB-B1F5-6DB5FA93ABFA" src="https://github.com/user-attachments/assets/9df97c3a-55f6-4007-b9e4-065de9923fc8" />
+<img height="150" alt="A0409D31-8586-4F77-8B02-3750A93E956C" src="https://github.com/user-attachments/assets/902cdd88-f00e-4f62-bba3-d9705201fe2d" />
+<img height="150" alt="B688D2F1-2245-4367-A698-8B988E5B6F2C" src="https://github.com/user-attachments/assets/d0d693e9-fd92-4c48-a827-8ba37ec3dd87" />
+
+
+We also experimented with 2 other runs for which we will give the end result below (we did not put the entire runs in this document because otherwise we will have a bit too much screenshots in this section):
+
+
+Run 3: rel_cell_div_threshold = 0.5.
+
+<img height="150" alt="Scherm­afbeelding 2026-10-07 om 22 45 38" src="https://github.com/user-attachments/assets/f8d8de93-095c-4bd8-bb0b-eaa2fc34ed02" />
+
+Run 4: rel_cell_div_threshold = 15.
+
+<img height="150" alt="Scherm­afbeelding 2026-10-07 om 22 48 20" src="https://github.com/user-attachments/assets/4d121cbc-cb95-4081-a4d9-8aacc438102e" />
+
+
+
+
+
+
+In our runs, the infected plant region looked almost the same after 2 hours for all thresholds we tried (0.5, 1, 3, and 15), covering the first three cell files and one cell in the fourth file, even though the pathogen population itself expanded at very different rates. This can be explained by the numbers above: with a threshold of 3 or higher the pathogen would need an area of at least 3000 to divide, which it cannot reach within 2 hours, so it never divides and raising the threshold has no effect at all. Even with the default value of 2, the pathogen barely reaches a target area of 2000 by the end of the run. Only with a threshold of 1 or lower (such as 1 and 0.5) can the pathogen divide within 2 hours, expanding the pathogen population from 1 cell to 2 and 7 cells, respectively.
+
+**Effect on pathogen population vs. infection spread.** The threshold only decides at which area a pathogen cell divides. Before division, it does not change how fast an individual pathogen cell grows, because each cell's target area increases by a fixed 2 per step, whatever the threshold is (once a cell divides, however, each new daughter cell also increases its target area by 2 per step, accelerating total population area growth). The first division therefore comes after about (threshold × 1000 − 559) / 2 steps of 10 seconds: about 221 steps (37 minutes) for threshold 1, 721 steps (just after 2 hours) for threshold 2 and 1221 steps (about 3 hours 24 minutes) for threshold 3. These are the earliest possible moments, because the division check uses the actual area, which follows the target area with a delay. In the run with threshold 1 the pathogen indeed divided only after about 68 minutes, not after 37, because its actual area crossed 1000 only then. So in a 2-hour run thresholds 2, 3 and 15 all mean "no division", which is why these runs looked the same, and only thresholds of 1 or lower can lead to a division at all. In the output of the default run (threshold 2) the pathogen stays a single cell during the whole 2 hours (47 cells in every snapshot): its target area grows from 559 to 1999 as expected, but its actual area only reaches about 1600, so the division condition is never met. In the run with threshold 1 the pathogen population expanded to 2 cells at the end (48 cells in total), but the number of infected plant cells was 11, the same as in the default run at 2 hours. It reached 11 after 63 minutes, before the division, and did not increase after it. We also ran threshold 0.5. The pathogen starts with an actual area of about 552, which is already above 0.5 × 1000, so it divides right at the start and ends with 7 cells after 2 hours (53 cells in total). Even then the number of infected plant cells at 2 hours was again 11, and the spread was even slower in the first hour (6 infected cells after 60 minutes, against 10 or 11 in the other runs), likely because early divisions split the shared boundary with the host and cause the daughter cells to push against each other rather than wedging deeply into the epidermis. So while lowering the threshold below 2 strongly accelerates how fast the pathogen population expands (from 1 to 2 to 7 cells), having more pathogen cells did not make the infection spread faster through the host tissue. This suggests that the infection spread is mainly set by how fast the chemical diffuses through the cell walls (question 3), and not by the number of pathogen cells. To see an effect of raising the threshold above 2, we would need a much longer run, and to speed up tissue infection we would need a change to something that acts directly on the chemical or the walls, which is fixed in the model code.
 
 Table 1: Summary of the five runs, based on the snapshots saved every 3 minutes. A plant cell is counted as infected when its chemical level is above 0.05, the level at which CellHouseKeeping starts to weaken its walls.
+
 
 | Run | Threshold | First division | Pathogen cells at 2 h | Cells in total | Infected plant cells at 30 / 60 / 90 / 120 min |
 |---|---|---|---|---|---|
@@ -87,12 +109,16 @@ In the auxin model, which is the other model we worked with, all cells are treat
 ## Question 6
 
 The idea of the defense is that a plant cell that detects a lot of the chemical makes its walls stiffer instead of letting them be weakened. This would go in CellHouseKeeping, in the part that handles the plant cells, right after the infection level is calculated. The defense check needs to happen before the existing weakening rule, otherwise the weakening would overwrite it. We would also need two new parameters, a defense threshold and a defense stiffness that is higher than the normal value of 3. The defense threshold has to lie between 0.1 and 1.2 on the scale of the infection level: the infection level is capped at 1.2, so a threshold of 1.2 or higher can never be exceeded and the defense would never switch on, and with a threshold of 0.1 or lower the defense would take over from the weakening rule completely, so the cells would never be weakened first.
+
 Pseudocode for CellHouseKeeping:
+
+```text
 for each cell c:
     if c is the pathogen:
         grow and divide as before, keep stiffness 3
     else:
         level = chemical of c / 0.5, capped at 1.2
+        
         if level > defense_threshold:
             set stiffness of all walls of c to defense_stiffness
             keep veto on
@@ -102,7 +128,6 @@ for each cell c:
         else:
             set stiffness of all walls of c to 3
             keep veto on
+```
 
-Optionally, in SetCellColor we could give defended cells a different colour so we can see where the defense is active.
-This adds a negative feedback. With the defense, more chemical in a cell leads to stiffer walls. Since the diffusion coefficient is 0.00001 divided by the stiffness, stiffer walls lower the diffusion, so the chemical spreads more slowly to the next cells. So more chemical now leads to less spreading, which works against the positive feedback from question 3. The defended cells could act like a barrier that slows down or even stops the infection.
-Counting the interactions in the same way as in question 3: more chemical now increases the stiffness (a positive interaction), stiffness still has a negative effect on the diffusion coefficient (a negative interaction), and higher diffusion still increases the chemical in the neighbouring cells (a positive interaction). There is only one negative interaction, so the loop is negative.
+Optionally, in SetCellColor we could give defended cells a different colour so we can see where the defense is active. This adds a negative feedback. With the defense, more chemical in a cell leads to stiffer walls. Since the diffusion coefficient is 0.00001 divided by the stiffness, stiffer walls lower the diffusion, so the chemical spreads more slowly to the next cells. So more chemical now leads to less spreading, which works against the positive feedback from question 3. The defended cells could act like a barrier that slows down or even stops the infection. Counting the interactions in the same way as in question 3: more chemical now increases the stiffness (a positive interaction), stiffness still has a negative effect on the diffusion coefficient (a negative interaction), and higher diffusion still increases the chemical in the neighbouring cells (a positive interaction). There is only one negative interaction, so the loop is negative.
