@@ -4,6 +4,23 @@
 
 **AI disclosures:** In this folder you can also find some files in which we explain how we used AI for this assignment.
 
+## Objective
+
+The objective of this assignment is to study how a pathogen spreads through plant tissue, using the Infection model in VirtualLeaf, a cell-based simulation framework for plant tissue. We simulated the infection, analysed how the chemical of the pathogen weakens the cell walls and diffuses between cells, varied the division threshold of the pathogen, and proposed a plant defense. The answers to the six questions are below.
+
+## How to run
+
+1. Download VirtualLeaf v2.2.1 from https://github.com/rmerks/VirtualLeaf2021/releases/tag/v2.2.1 (precompiled for Linux, macOS and Windows), or compile it from source with Qt as described in the VirtualLeaf README.
+2. Start VirtualLeaf and choose **Infection** in the **Models** menu. This loads `pathogen_infection.xml`.
+3. Start and stop the simulation with the spacebar. The simulated time is shown while it runs; we ran for 2 hours of simulated time.
+4. Parameters such as `rel_cell_div_threshold` can be changed with **Options → Edit parameters**.
+5. VirtualLeaf saves snapshots (`leaf.NNNNNN.xml` and `.pdf`, where NNNNNN is the simulated time in seconds) in a folder called `infection_growth`. This folder is created in the folder from which the program was started, which is often the home folder.
+
+## Dependencies and notes
+
+- VirtualLeaf v2.2.1. Qt 6 is only needed to compile it yourself. The precompiled macOS build contains an Intel binary, so on a Mac with Apple Silicon it needs Rosetta 2.
+- The answers below are written results of the simulations. There is no code in this folder that has to be run. The short Python script that we used to read the XML snapshots is in `irina_kalmykova_ai_use_disclosure.md`.
+
 ## Question 1
 
 We opened the Infection model, which loads pathogen_infection.xml, and ran it for 2 hours of simulated time. We took a screenshot at the start and then every 30 minutes.
