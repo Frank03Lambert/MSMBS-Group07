@@ -2,6 +2,8 @@
 
 **Authors:** Irina Kalmykova (I6365269), Kimi Knaider (I6367547), Frank Lambert (I6354310), Elias Loisel (I6359467), Noortje van Maldegem (I6374487)
 
+**AI disclosures:** In this folder you can also find some files in which we explain how we used AI for this assignment.
+
 ## Question 1
 
 We opened the Infection model, which loads pathogen_infection.xml, and ran it for 2 hours of simulated time. We took a screenshot at the start and then every 30 minutes.
