@@ -27,9 +27,9 @@ The pathogen behaves differently in a few ways. Its own walls are never weakened
 
 ## Question 3
 
-In CelltoCellTransport the chemical moves between neighbouring cells through passive diffusion, in a similar way to auxin in the previous exercise. The flux depends on the length of the wall, the diffusion coefficient and the difference in concentration between the two cells, with a small correction for the cell areas.
+In CelltoCellTransport the chemical moves between neighbouring cells through passive diffusion, in a similar way to auxin in the exercise during the computer practical. The flux depends on the length of the wall, the diffusion coefficient and the difference in concentration between the two cells, with a small correction for the cell areas.
 The difference with the auxin model is that the diffusion coefficient is not a fixed parameter. First, the function getLengthAndStiffness calculates the average stiffness of the wall between the two cells, weighted by the length of the wall elements and taking both sides of the wall into account. The diffusion coefficient is then 0.00001 divided by this average stiffness. This means that a softer wall lets the chemical pass through faster. If the stiffness is almost zero, the code just uses 0.00001 so it does not divide by a number close to zero.
-This creates a feedback loop. When a cell receives the chemical, its walls become softer (question 2). Softer walls give a higher diffusion coefficient, so the chemical moves faster through those walls into the next cells. These cells then also get softer walls and pass the chemical on even faster. Each step strengthens the next one, so this is a positive feedback loop, and the infection basically speeds up its own spread. It does not grow without limit, because the stiffness cannot go below 3 − 1.2 = 1.8. The diffusion coefficient therefore ranges from 0.00001/3 ≈ 3.3·10⁻⁶ (healthy wall) to 0.00001/1.8 ≈ 5.6·10⁻⁶ (fully weakened wall), so it can increase by at most a factor 3/1.8 ≈ 1.67. On top of that, plant cells degrade the chemical at a rate of 0.001 × their chemical level (CellDynamics).
+This creates a feedback loop. When a cell receives the chemical, its walls become softer (as was also discussed in question 2). Softer walls give a higher diffusion coefficient, so the chemical moves faster through those walls into the next cells. These cells then also get softer walls and pass the chemical on even faster. Each step strengthens the next one, so this is a positive feedback loop, and the infection basically speeds up its own spread. It does not grow without limit, because the stiffness cannot go below 3 − 1.2 = 1.8. The diffusion coefficient therefore ranges from 0.00001/3 ≈ 3.3·10⁻⁶ (healthy wall) to 0.00001/1.8 ≈ 5.6·10⁻⁶ (fully weakened wall), so it can increase by at most a factor 3/1.8 ≈ 1.67. On top of that, plant cells degrade the chemical at a rate of 0.001 × their chemical level (which can be seen in the method called CellDynamics).
 We can also check the sign of the loop with what we saw about feedback loops in the network biology lecture, where a loop is positive if it contains an even number of negative interactions. Here, more chemical lowers the stiffness (a negative interaction), and since the diffusion coefficient is 0.00001 divided by the stiffness, stiffness also has a negative effect on diffusion (a second negative interaction). Higher diffusion then increases the amount of chemical in the neighbouring cells (a positive interaction). Two negative interactions give a positive loop, which confirms what we described above. 
 
 <img width="487" height="392" alt="image" src="https://github.com/user-attachments/assets/995d8200-7b89-4210-9ba1-03fc500ff686" />
@@ -37,7 +37,9 @@ We can also check the sign of the loop with what we saw about feedback loops in 
 
 
 
-Figure 1 : Sketch of the feedback loop between the chemical, the wall stiffness and the diffusion coefficient.
+Figure 1 : Sketch of the feedback loop between the chemical, the wall stiffness and the diffusion coefficient. 
+
+Figure 1 was generated using Claude but we thought it is nice to have a sketch of the feedback loop to support our answer to question 3. See the AI disclosure for information about how we used AI for this assignment.
 
 
 
